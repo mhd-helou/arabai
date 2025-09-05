@@ -1,0 +1,29 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:16
+    container_name: arabai_db
+    environment:
+      POSTGRES_USER: mo
+      POSTGRES_PASSWORD: 11112222q
+      POSTGRES_DB: arabai
+    ports:
+      - "5433:5432"  # Docker Postgres listens on 5433 on your Mac
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: arabai
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://mo:11112222q@db:5432/arabai
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app  # Optional: mount local code for live reload
+
+volumes:
+  pgdata:
