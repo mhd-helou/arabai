@@ -1,6 +1,8 @@
 const { verifyToken, extractTokenFromHeader } = require('../utils/token.utils');
 const User = require('../models/user.model');
 
+
+
 const authMiddleware = (db) => {
   const userModel = new User(db);
 

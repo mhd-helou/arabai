@@ -8,19 +8,43 @@ const connectDB = async () => {
       return db;
     }
 
-    const connectionString = process.env.DATABASE_URL || `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
+    // Build connection string based on environment
+    let connectionString;
 
-    db = await massive({
+    if (process.env.NODE_ENV === 'production') {
+      // Production: Use DATABASE_URL from .env.production or Netlify env vars
+      connectionString = process.env.DATABASE_URL;
+    } else {
+      // Local development: Use DATABASE_URL from .env if available, otherwise build from parts
+      connectionString = process.env.DATABASE_URL ||
+          `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
+    }
+
+    const massiveConfig = {
       connectionString,
       ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-    });
+    };
 
-    console.log('PostgreSQL connected successfully via Massive');
+    // For serverless environments (like Netlify Functions), add connection pooling options
+    if (process.env.NODE_ENV === 'production') {
+      massiveConfig.poolSize = 10; // Smaller pool for serverless
+      massiveConfig.poolIdleTimeout = 30000; // 30 seconds
+      massiveConfig.poolLogLevel = 'error'; // Reduce logging noise
+    }
+
+    db = await massive(massiveConfig);
+
+    console.log(`PostgreSQL connected successfully via Massive (${process.env.NODE_ENV || 'development'})`);
     return db;
 
   } catch (error) {
     console.error('Database connection error:', error);
-    process.exit(1);
+    // In serverless environments, don't exit the process
+    if (process.env.NODE_ENV === 'production') {
+      throw error;
+    } else {
+      process.exit(1);
+    }
   }
 };
 
@@ -39,8 +63,17 @@ const closeDB = async () => {
   }
 };
 
+// For serverless environments, ensure connection is established
+const ensureConnection = async () => {
+  if (!db) {
+    await connectDB();
+  }
+  return db;
+};
+
 module.exports = {
   connectDB,
   getDB,
-  closeDB
+  closeDB,
+  ensureConnection // New helper for serverless
 };
