@@ -10,16 +10,19 @@ steps:
   # Deploy to Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
     args:
-    - 'run'
-    - 'deploy'
-    - 'arabai'
-    - '--image'
-    - 'europe-west1-docker.pkg.dev/game-460422/cloud-run-source-deploy/arabai:$COMMIT_SHA'
-    - '--region'
-    - 'europe-west1'
-    - '--platform'
-    - 'managed'
-    - '--allow-unauthenticated'
+      - 'run'
+      - 'deploy'
+      - 'arabai'
+      - '--image'
+      - 'europe-west1-docker.pkg.dev/game-460422/cloud-run-source-deploy/arabai:$COMMIT_SHA'
+      - '--region'
+      - 'europe-west1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
 
 images:
   - 'europe-west1-docker.pkg.dev/game-460422/cloud-run-source-deploy/arabai:$COMMIT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
