@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const { connectDB } = require('./config/database');
 const createAuthRoutes = require('./routes/auth.routes');
@@ -43,6 +44,9 @@ const createApp = async () => {
   // Body parsing middleware
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+  
+  // Cookie parsing middleware
+  app.use(cookieParser());
   // Health check route
   app.get('/health', (req, res) => {
     res.status(200).json({

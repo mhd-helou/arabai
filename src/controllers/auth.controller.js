@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const { validationResult } = require('express-validator');
 const User = require('../models/user.model');
-const { generateToken, generateRefreshToken } = require('../utils/token.utils');
+const { generateToken, generateRefreshToken, verifyRefreshToken } = require('../utils/token.utils');
 
 class AuthController {
   constructor(db) {
@@ -54,13 +54,26 @@ class AuthController {
         userId: newUser.id 
       });
 
+      // Set secure HttpOnly cookies
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+      });
+
       res.status(201).json({
         success: true,
         message: 'User created successfully',
         data: {
-          user: sanitizedUser,
-          token,
-          refreshToken
+          user: sanitizedUser
         }
       });
 
@@ -112,15 +125,28 @@ class AuthController {
         userId: user.id 
       });
 
+      // Set secure HttpOnly cookies
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+      });
+
       const sanitizedUser = this.sanitizeUser(user);
 
       res.status(200).json({
         success: true,
         message: 'Login successful',
         data: {
-          user: sanitizedUser,
-          token,
-          refreshToken
+          user: sanitizedUser
         }
       });
 
@@ -135,6 +161,10 @@ class AuthController {
 
   logout = async (req, res) => {
     try {
+      // Clear authentication cookies
+      res.clearCookie('token');
+      res.clearCookie('refreshToken');
+
       res.status(200).json({
         success: true,
         message: 'Logout successful'
@@ -261,6 +291,56 @@ class AuthController {
       res.status(500).json({
         success: false,
         message: 'Internal server error'
+      });
+    }
+  };
+
+  refreshToken = async (req, res) => {
+    try {
+      const refreshToken = req.cookies.refreshToken;
+
+      if (!refreshToken) {
+        return res.status(401).json({
+          success: false,
+          message: 'Refresh token is required'
+        });
+      }
+
+      const decoded = verifyRefreshToken(refreshToken);
+      const user = await this.userModel.findById(decoded.userId);
+
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid refresh token - user not found'
+        });
+      }
+
+      // Generate new access token
+      const newToken = generateToken({
+        userId: user.id,
+        email: user.email,
+        role: user.role
+      });
+
+      // Set new access token cookie
+      res.cookie('token', newToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+
+      res.status(200).json({
+        success: true,
+        message: 'Token refreshed successfully'
+      });
+
+    } catch (error) {
+      console.error('Refresh token error:', error);
+      res.status(401).json({
+        success: false,
+        message: 'Invalid or expired refresh token'
       });
     }
   };

@@ -31,6 +31,7 @@ const createAuthRoutes = (db) => {
   router.post('/signup', ...signupValidation, authController.signup);
   router.post('/login', ...loginValidation, authController.login);
   router.post('/logout', authController.logout);
+  router.post('/refresh-token', authController.refreshToken);
 
   // Protected routes
   router.get('/profile', authenticate, authController.getProfile);

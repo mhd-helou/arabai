@@ -8,8 +8,13 @@ const authMiddleware = (db) => {
 
   return async (req, res, next) => {
     try {
-      const authHeader = req.headers.authorization;
-      const token = extractTokenFromHeader(authHeader);
+      // Try to get token from cookie first, then fallback to header (for backward compatibility)
+      let token = req.cookies.token;
+      
+      if (!token) {
+        const authHeader = req.headers.authorization;
+        token = extractTokenFromHeader(authHeader);
+      }
 
       if (!token) {
         return res.status(401).json({
@@ -82,8 +87,13 @@ const optionalAuth = (db) => {
 
   return async (req, res, next) => {
     try {
-      const authHeader = req.headers.authorization;
-      const token = extractTokenFromHeader(authHeader);
+      // Try to get token from cookie first, then fallback to header
+      let token = req.cookies.token;
+      
+      if (!token) {
+        const authHeader = req.headers.authorization;
+        token = extractTokenFromHeader(authHeader);
+      }
 
       if (!token) {
         req.user = null;
