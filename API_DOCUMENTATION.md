@@ -1,9 +1,18 @@
 # Arab AI - Authentication API Documentation
 
-## Base URL
+## Base URLs
+
+### Production Environment
+```
+https://arabai-825528766846.europe-west1.run.app
+```
+
+### Development Environment
 ```
 http://localhost:5000
 ```
+
+**Note:** Replace the base URL in all examples below with the appropriate environment URL.
 
 ## Response Format
 
@@ -437,14 +446,26 @@ curl -X PUT http://localhost:5000/api/auth/change-password \
 
 ### Complete Testing Flow
 
+**Use Production URL:** `https://arabai-825528766846.europe-west1.run.app`  
+**Use Development URL:** `http://localhost:5000`
+
 1. **Health Check**
    ```
+   # Production
+   GET https://arabai-825528766846.europe-west1.run.app/health
+   
+   # Development  
    GET http://localhost:5000/health
    ```
 
 2. **Create User**
    ```
+   # Production
+   POST https://arabai-825528766846.europe-west1.run.app/api/auth/signup
+   
+   # Development
    POST http://localhost:5000/api/auth/signup
+   
    Body: {
      "name": "Test User",
      "email": "test@example.com",
@@ -454,7 +475,12 @@ curl -X PUT http://localhost:5000/api/auth/change-password \
 
 3. **Login**
    ```
+   # Production
+   POST https://arabai-825528766846.europe-west1.run.app/api/auth/login
+   
+   # Development
    POST http://localhost:5000/api/auth/login
+   
    Body: {
      "email": "test@example.com",
      "password": "Test123456"
@@ -464,20 +490,35 @@ curl -X PUT http://localhost:5000/api/auth/change-password \
 
 4. **Get Profile**
    ```
+   # Production
+   GET https://arabai-825528766846.europe-west1.run.app/api/auth/profile
+   
+   # Development
    GET http://localhost:5000/api/auth/profile
+   
    Headers: Authorization: Bearer YOUR_TOKEN_HERE
    ```
 
 5. **Update Profile**
    ```
+   # Production
+   PUT https://arabai-825528766846.europe-west1.run.app/api/auth/profile
+   
+   # Development
    PUT http://localhost:5000/api/auth/profile
+   
    Headers: Authorization: Bearer YOUR_TOKEN_HERE
    Body: { "name": "Updated Test User" }
    ```
 
 6. **Change Password**
    ```
+   # Production
+   PUT https://arabai-825528766846.europe-west1.run.app/api/auth/change-password
+   
+   # Development
    PUT http://localhost:5000/api/auth/change-password
+   
    Headers: Authorization: Bearer YOUR_TOKEN_HERE
    Body: {
      "currentPassword": "Test123456",
@@ -488,6 +529,10 @@ curl -X PUT http://localhost:5000/api/auth/change-password \
 
 7. **Logout**
    ```
+   # Production
+   POST https://arabai-825528766846.europe-west1.run.app/api/auth/logout
+   
+   # Development
    POST http://localhost:5000/api/auth/logout
    ```
 

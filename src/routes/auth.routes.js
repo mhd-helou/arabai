@@ -8,7 +8,6 @@ const {
   updateProfileValidation, 
   changePasswordValidation 
 } = require('../middlewares/validation.middleware');
-
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5, // 5 attempts per window
@@ -19,15 +18,18 @@ const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
-
 const createAuthRoutes = (db) => {
   const router = express.Router();
   const authController = new AuthController(db);
   const authenticate = authMiddleware(db);
 
   // Public routes
-  router.post('/signup', authLimiter, ...signupValidation, authController.signup);
+  /*router.post('/signup', authLimiter, ...signupValidation, authController.signup);
   router.post('/login', authLimiter, ...loginValidation, authController.login);
+  router.post('/logout', authController.logout);
+*/
+  router.post('/signup', ...signupValidation, authController.signup);
+  router.post('/login', ...loginValidation, authController.login);
   router.post('/logout', authController.logout);
 
   // Protected routes
@@ -37,5 +39,4 @@ const createAuthRoutes = (db) => {
 
   return router;
 };
-
 module.exports = createAuthRoutes;
