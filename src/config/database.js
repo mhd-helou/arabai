@@ -12,13 +12,12 @@ const connectDB = async () => {
     let connectionString;
 
     if (process.env.NODE_ENV === 'production') {
-      // Production: Check if we're in Cloud Run with Cloud SQL
-      if (process.env.DB_SOCKET_PATH && process.env.DB_NAME) {
+      // Production: Use DATABASE_URL if available, otherwise build from components
+      if (process.env.DATABASE_URL) {
+        connectionString = process.env.DATABASE_URL;
+      } else if (process.env.DB_SOCKET_PATH && process.env.DB_NAME) {
         // Cloud SQL Unix socket connection
         connectionString = `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@/${process.env.DB_NAME}?host=${process.env.DB_SOCKET_PATH}`;
-      } else {
-        // Fallback to DATABASE_URL
-        connectionString = process.env.DATABASE_URL;
       }
     } else {
       // Local development: Use DATABASE_URL from .env if available, otherwise build from parts

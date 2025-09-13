@@ -161,9 +161,19 @@ class AuthController {
 
   logout = async (req, res) => {
     try {
-      // Clear authentication cookies
-      res.clearCookie('token');
-      res.clearCookie('refreshToken');
+      // Clear authentication cookies with same options as when they were set
+      res.clearCookie('token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production' && !process.env.ALLOW_HTTP_COOKIES,
+        sameSite: 'lax',
+        path: '/'
+      });
+      res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production' && !process.env.ALLOW_HTTP_COOKIES,
+        sameSite: 'lax',
+        path: '/'
+      });
 
       res.status(200).json({
         success: true,
