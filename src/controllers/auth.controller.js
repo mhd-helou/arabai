@@ -57,14 +57,14 @@ class AuthController {
       // Set secure HttpOnly cookies
       res.cookie('token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === 'production' && !process.env.ALLOW_HTTP_COOKIES,
         sameSite: 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
       });
 
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === 'production' && !process.env.ALLOW_HTTP_COOKIES,
         sameSite: 'lax',
         maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
       });
@@ -128,14 +128,14 @@ class AuthController {
       // Set secure HttpOnly cookies
       res.cookie('token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === 'production' && !process.env.ALLOW_HTTP_COOKIES,
         sameSite: 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
       });
 //changed to lax from strict
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === 'production' && !process.env.ALLOW_HTTP_COOKIES,
         sameSite: 'lax',
         maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
       });
@@ -326,7 +326,7 @@ class AuthController {
       // Set new access token cookie
       res.cookie('token', newToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === 'production' && !process.env.ALLOW_HTTP_COOKIES,
         sameSite: 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
       });
