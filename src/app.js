@@ -25,8 +25,18 @@ const createApp = async () => {
   }
   // Security middlewares
   app.use(helmet());
+  // CORS configuration for development and production
+  const allowedOrigins = process.env.FRONTEND_URL 
+    ? process.env.FRONTEND_URL.split(',')
+    : [
+        'http://localhost:3000',  // Vite default
+        'http://localhost:8080',  // Vue CLI default  
+        'http://localhost:5173',  // Vite dev server
+        'http://localhost:4173'   // Vite preview
+      ];
+
   app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: allowedOrigins,
     credentials: true
   }));
   // Global rate limiting
