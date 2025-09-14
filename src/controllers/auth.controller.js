@@ -58,14 +58,14 @@ class AuthController {
       res.cookie('token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production' && !process.env.ALLOW_HTTP_COOKIES,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        sameSite: process.env.NODE_ENV === 'none',
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
       });
 
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production' && !process.env.ALLOW_HTTP_COOKIES,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        sameSite: process.env.NODE_ENV === 'none',
         maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
       });
 
@@ -129,14 +129,14 @@ class AuthController {
       res.cookie('token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production' && !process.env.ALLOW_HTTP_COOKIES,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        sameSite: process.env.NODE_ENV === 'none',
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
       });
 //changed to lax from strict
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production' && !process.env.ALLOW_HTTP_COOKIES,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        sameSite: process.env.NODE_ENV === 'none',
         maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
       });
 
@@ -165,13 +165,13 @@ class AuthController {
       res.clearCookie('token', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production' && !process.env.ALLOW_HTTP_COOKIES,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        sameSite: process.env.NODE_ENV === 'none',
         path: '/'
       });
       res.clearCookie('refreshToken', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production' && !process.env.ALLOW_HTTP_COOKIES,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        sameSite: process.env.NODE_ENV === 'none',
         path: '/'
       });
 
@@ -337,7 +337,7 @@ class AuthController {
       res.cookie('token', newToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production' && !process.env.ALLOW_HTTP_COOKIES,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        sameSite: process.env.NODE_ENV === 'none',
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
       });
 
