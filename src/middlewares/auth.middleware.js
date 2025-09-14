@@ -8,12 +8,12 @@ const authMiddleware = (db) => {
 
   return async (req, res, next) => {
     try {
-      // Try to get token from cookie first, then fallback to header (for backward compatibility)
-      let token = req.cookies.token;
+      // Try to get token from Authorization header first, then fallback to cookie
+      const authHeader = req.headers.authorization;
+      let token = extractTokenFromHeader(authHeader);
       
       if (!token) {
-        const authHeader = req.headers.authorization;
-        token = extractTokenFromHeader(authHeader);
+        token = req.cookies.token;
       }
 
       if (!token) {
@@ -87,12 +87,12 @@ const optionalAuth = (db) => {
 
   return async (req, res, next) => {
     try {
-      // Try to get token from cookie first, then fallback to header
-      let token = req.cookies.token;
+      // Try to get token from Authorization header first, then fallback to cookie
+      const authHeader = req.headers.authorization;
+      let token = extractTokenFromHeader(authHeader);
       
       if (!token) {
-        const authHeader = req.headers.authorization;
-        token = extractTokenFromHeader(authHeader);
+        token = req.cookies.token;
       }
 
       if (!token) {

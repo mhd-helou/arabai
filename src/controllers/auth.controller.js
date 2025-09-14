@@ -54,26 +54,13 @@ class AuthController {
         userId: newUser.id 
       });
 
-      // Set secure HttpOnly cookies
-      res.cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production' && !process.env.ALLOW_HTTP_COOKIES,
-        sameSite: process.env.NODE_ENV === 'none',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-      });
-
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production' && !process.env.ALLOW_HTTP_COOKIES,
-        sameSite: process.env.NODE_ENV === 'none',
-        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
-      });
-
       res.status(201).json({
         success: true,
         message: 'User created successfully',
         data: {
-          user: sanitizedUser
+          user: sanitizedUser,
+          token: token,
+          refreshToken: refreshToken
         }
       });
 
@@ -125,28 +112,15 @@ class AuthController {
         userId: user.id 
       });
 
-      // Set secure HttpOnly cookies
-      res.cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production' && !process.env.ALLOW_HTTP_COOKIES,
-        sameSite: process.env.NODE_ENV === 'none',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-      });
-//changed to lax from strict
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production' && !process.env.ALLOW_HTTP_COOKIES,
-        sameSite: process.env.NODE_ENV === 'none',
-        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
-      });
-
       const sanitizedUser = this.sanitizeUser(user);
 
       res.status(200).json({
         success: true,
         message: 'Login successful',
         data: {
-          user: sanitizedUser
+          user: sanitizedUser,
+          token: token,
+          refreshToken: refreshToken
         }
       });
 
@@ -161,20 +135,6 @@ class AuthController {
 
   logout = async (req, res) => {
     try {
-      // Clear authentication cookies with same options as when they were set
-      res.clearCookie('token', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production' && !process.env.ALLOW_HTTP_COOKIES,
-        sameSite: process.env.NODE_ENV === 'none',
-        path: '/'
-      });
-      res.clearCookie('refreshToken', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production' && !process.env.ALLOW_HTTP_COOKIES,
-        sameSite: process.env.NODE_ENV === 'none',
-        path: '/'
-      });
-
       res.status(200).json({
         success: true,
         message: 'Logout successful'
@@ -307,7 +267,7 @@ class AuthController {
 
   refreshToken = async (req, res) => {
     try {
-      const refreshToken = req.cookies.refreshToken;
+      const refreshToken = req.body.refreshToken;
 
       if (!refreshToken) {
         return res.status(401).json({
@@ -333,17 +293,12 @@ class AuthController {
         role: user.role
       });
 
-      // Set new access token cookie
-      res.cookie('token', newToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production' && !process.env.ALLOW_HTTP_COOKIES,
-        sameSite: process.env.NODE_ENV === 'none',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-      });
-
       res.status(200).json({
         success: true,
-        message: 'Token refreshed successfully'
+        message: 'Token refreshed successfully',
+        data: {
+          token: newToken
+        }
       });
 
     } catch (error) {
