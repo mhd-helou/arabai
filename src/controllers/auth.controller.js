@@ -325,6 +325,10 @@ class AuthController {
           message: 'Google ID Token is required'
         });
       }
+      
+      console.log('Google Client ID:', process.env.GOOGLE_CLIENT_ID ? 'Set' : 'Not set');
+      console.log('Received token length:', googleIdToken.length);
+      
       const {OAuth2Client} = require('google-auth-library');
       const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
