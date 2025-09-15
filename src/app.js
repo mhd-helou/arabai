@@ -35,10 +35,13 @@ const createApp = async () => {
         'http://localhost:4173'   // Vite preview
       ];
   
-  // Always allow localhost:3000 for development
-  if (!allowedOrigins.includes('http://localhost:3000')) {
-    allowedOrigins.push('http://localhost:3000');
-  }
+  // Always allow development origins
+  const devOrigins = ['http://localhost:3000', 'http://localhost:63342'];
+  devOrigins.forEach(origin => {
+    if (!allowedOrigins.includes(origin)) {
+      allowedOrigins.push(origin);
+    }
+  });
 
   app.use(cors({
     origin: allowedOrigins,
