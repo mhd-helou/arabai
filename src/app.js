@@ -29,11 +29,16 @@ const createApp = async () => {
   const allowedOrigins = process.env.FRONTEND_URL 
     ? process.env.FRONTEND_URL.split(',')
     : [
-        'http://localhost:3000',  // Vite default
+        'http://localhost:3000',  // Frontend dev server
         'http://localhost:8080',  // Vue CLI default  
         'http://localhost:5173',  // Vite dev server
         'http://localhost:4173'   // Vite preview
       ];
+  
+  // Always allow localhost:3000 for development
+  if (!allowedOrigins.includes('http://localhost:3000')) {
+    allowedOrigins.push('http://localhost:3000');
+  }
 
   app.use(cors({
     origin: allowedOrigins,
