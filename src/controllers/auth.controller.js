@@ -315,6 +315,77 @@ class AuthController {
     const { password, reset_password_token, reset_password_expire, ...sanitizedUser } = user;
     return sanitizedUser;
   }
+
+  googleAuth = async (req, res) =>{
+    try {
+      const {googleIdToken} = req.body;
+      if (!googleIdToken) {
+        return res.status(400).json({
+          success: false,
+          message: 'Google ID Token is required'
+        });
+      }
+      const {OAuth2Client} = require('google-auth-library');
+      const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+      const ticket = await client.verifyIdToken({
+        idToken: googleIdToken,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      const payload = ticket.getPayload();
+      const {sub: googleId, email, name} = payload;
+
+      let user = await this.userModel.findByProviderAndId('google', googleId);
+      if (!user) {
+        const existingUser = await this.userModel.findByEmail(email);
+        if (existingUser) {
+          return res.status(409).json({
+            success: false,
+            message: 'An account with this email already exists, please login with email/password'
+          });
+        }
+          const userData = {
+            name: name,
+            email: email.toLowerCase().trim(),
+            password: null,
+            provider: 'google',
+            provider_id: googleId,
+            role: 'user',
+            is_email_verified: true,
+            created_at: new Date(),
+            updated_at: new Date()
+          };
+          user = await this.userModel.create(userData);
+        }
+
+        // Generate tokens for both new and existing users
+        const token = generateToken({
+          userId: user.id,
+          email: user.email,
+          role: user.role
+        });
+        const refreshToken = generateRefreshToken({
+          userId: user.id
+        });
+        const sanitizedUser = this.sanitizeUser(user);
+        
+        res.status(200).json({
+          success: true,
+          message: 'Google Auth successful',
+          data: {
+            user: sanitizedUser,
+            token: token,
+            refreshToken: refreshToken
+          }
+        });
+    } catch (error) {
+        console.error('Google auth error:',error);
+        res.status(401).json({
+          success:false,
+          message:'Invalid Google Token'
+        });
+      }
+  };
 }
 
 module.exports = AuthController;

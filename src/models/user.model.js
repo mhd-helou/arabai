@@ -46,6 +46,12 @@ class User {
     });
     return users;
   }
+  async findByProviderAndId(provider,providerId) {
+    const user = await this.db.users.findOne({
+      provider,
+      provider_id: providerId
+    });
+    return user;
+  }
 }
-
 module.exports = User;
