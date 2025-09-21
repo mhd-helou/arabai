@@ -26,7 +26,7 @@ const createAuthRoutes = (db) => {
   // Public routes
   /*router.post('/signup', authLimiter, ...signupValidation, authController.signup);
   router.post('/login', authLimiter, ...loginValidation, authController.login);
-  router.post('/logout', authController.logout);
+  router.post('/logout ', authController.logout);
 */
   router.post('/signup', ...signupValidation, authController.signup);
   router.post('/login', ...loginValidation, authController.login);

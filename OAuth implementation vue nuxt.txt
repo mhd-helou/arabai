@@ -1,0 +1,110 @@
+ 1. Google Sign-In Component (components/GoogleSignIn.vue)
+
+  <template>
+    <div>
+      <!-- Google One Tap -->
+      <div
+        id="g_id_onload"
+        :data-client_id="clientId"
+        data-callback="handleCredentialResponse"
+      ></div>
+
+      <!-- Google Sign-In Button -->
+      <div
+        class="g_id_signin"
+        data-type="standard"
+      ></div>
+    </div>
+  </template>
+
+  <script setup>
+  const { loginWithGoogle } = useAuth()
+
+  const clientId = '825528766846-gbq9m05amb2rdbdk5pv9bvp89b4fgqtf.apps.googleusercontent.com'
+
+  const emit = defineEmits(['success', 'error'])
+
+  onMounted(() => {
+    // Load Google Script
+    const script = document.createElement('script')
+    script.src = 'https://accounts.google.com/gsi/client'
+    script.async = true
+    script.onload = () => {
+      // Make the callback function global so Google can access it
+      window.handleCredentialResponse = handleCredentialResponse
+    }
+    document.head.appendChild(script)
+  })
+
+  const handleCredentialResponse = async (response) => {
+    console.log("ID Token:", response.credential)
+
+    try {
+      // Test your API
+      const result = await fetch('https://arabai-825528766846.europe-west1.run.app/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          googleIdToken: response.credential
+        })
+      })
+
+      const data = await result.json()
+      console.log('API Response:', data)
+
+      if (data.success) {
+        // Update auth state
+        await loginWithGoogle(response.credential)
+        emit('success', data)
+        await navigateTo('/dashboard')
+      } else {
+        emit('error', data.message)
+      }
+    } catch (error) {
+      console.error('Login failed:', error)
+      emit('error', error.message)
+    }
+  }
+
+  // Cleanup when component unmounts
+  onUnmounted(() => {
+    if (window.handleCredentialResponse) {
+      delete window.handleCredentialResponse
+    }
+  })
+  </script>
+
+  2. Login Page (pages/login.vue)
+
+  <template>
+    <div class="min-h-screen flex items-center justify-center">
+      <div class="max-w-md w-full p-8">
+        <h2 class="text-3xl font-bold text-center mb-8">Sign In</h2>
+
+        <!-- Google Sign In Component -->
+        <GoogleSignIn
+          @success="handleSuccess"
+          @error="handleError"
+        />
+
+        <!-- Error Message -->
+        <div v-if="error" class="mt-4 p-3 bg-red-50 border border-red-200 rounded">
+          <p class="text-red-600 text-sm">{{ error }}</p>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script setup>
+  const error = ref('')
+
+  const handleSuccess = (data) => {
+    console.log('Login successful:', data)
+    error.value = ''
+  }
+
+  const handleError = (errorMessage) => {
+    console.error('Login error:', errorMessage)
+    error.value = errorMessage || 'Login failed. Please try again.'
+  }
+  </script>

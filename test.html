@@ -1,30 +1,30 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <script src="https://accounts.google.com/gsi/client"></script>
-</head>
-<body>
-<div id="g_id_onload"
-     data-client_id="825528766846-gbq9m05amb2rdbdk5pv9bvp89b4fgqtf.apps.googleusercontent.com"
-     data-callback="handleCredentialResponse">
-</div>
-<div class="g_id_signin" data-type="standard"></div>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <script src="https://accounts.google.com/gsi/client"></script>
+    </head>
+    <body>
+    <div id="g_id_onload"
+         data-client_id="825528766846-gbq9m05amb2rdbdk5pv9bvp89b4fgqtf.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse">
+    </div>
+    <div class="g_id_signin" data-type="standard"></div>
 
-<script>
-    function handleCredentialResponse(response) {
-        console.log("ID Token:", response.credential);
+    <script>
+        function handleCredentialResponse(response) {
+            console.log("ID Token:", response.credential);
 
-        // Test your API
-        fetch('https://arabai-825528766846.europe-west1.run.app/api/auth/google', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                googleIdToken: response.credential
+            // Test your API
+            fetch('https://arabai-825528766846.europe-west1.run.app/api/auth/google', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    googleIdToken: response.credential
+                })
             })
-        })
-            .then(res => res.json())
-            .then(data => console.log('API Response:', data));
-    }
-</script>
-</body>
-</html>
+                .then(res => res.json())
+                .then(data => console.log('API Response:', data));
+        }
+    </script>
+    </body>
+    </html>

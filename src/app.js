@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const { connectDB } = require('./config/database');
 const createAuthRoutes = require('./routes/auth.routes');
+const createChatRoutes = require('./routes/chat.routes');
 const createApp = async () => {
   const app = express();
   // Trust proxy for Cloud Run (more secure configuration)
@@ -76,6 +77,7 @@ const createApp = async () => {
   // API routes
   if (db) {
     app.use('/api/auth', createAuthRoutes(db));
+    app.use('/api/chat', createChatRoutes(db));
   } else {
     // If no database connection, return error for auth routes
     app.use('/api/auth', (req, res) => {
@@ -93,6 +95,7 @@ const createApp = async () => {
       version: '1.0.0',
       endpoints: {
         auth: '/api/auth',
+        chat: '/api/chat',
         health: '/health'
       }
     });
