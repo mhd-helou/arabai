@@ -43,13 +43,19 @@ class ChatController {
             const result = await geminiService.chat(message, options);
 
             // Save AI response
+            const tokenCount = result.usage?.totalTokens || null;
+            console.log('💾 Saving to DB - Token count:', tokenCount);
+            console.log('💾 Full result.usage:', JSON.stringify(result.usage));
+            
             await db.messages.insert({
                 conversation_id: conversation.id,
                 role: 'assistant',
                 content: result.response,
                 provider: 'gemini',
-                tokens_used: result.usage?.totalTokens || null
+                tokens_used: tokenCount
             });
+            
+            console.log('✅ Message saved to database');
 
             // Update conversation timestamp
             await db.conversations.update(conversation.id, {
