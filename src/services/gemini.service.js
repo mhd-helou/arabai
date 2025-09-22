@@ -21,14 +21,16 @@ class GeminiService {
                 })
             });
             if (!response.ok) {
-                throw new Error(`Gemini API error: ${response.status}`);
+                const errorText = await response.text();
+                console.error(`Gemini API Error ${response.status}:`, errorText);
+                throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
             }
 
             const data = await response.json();
             return {
                 response: data.candidates[0].content.parts[0].text,
                 usage:{
-                    tokens: data.usageMetadata?.totalTokenCount || 0
+                    totalTokens: data.usageMetadata?.totalTokenCount || 0
                 }
             };
             } catch (error) {
