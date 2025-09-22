@@ -27,6 +27,7 @@ class GeminiService {
             }
 
             const data = await response.json();
+            console.log('Gemini API Response:', JSON.stringify(data, null, 2));
             return {
                 response: data.candidates[0].content.parts[0].text,
                 usage:{
