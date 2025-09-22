@@ -27,14 +27,16 @@ class GeminiService {
             }
 
             const data = await response.json();
-            console.log('Gemini API Response:', JSON.stringify(data, null, 2));
+            console.log('🔍 Raw Gemini API Response:', JSON.stringify(data, null, 2));
             
             const usage = data.usageMetadata || {};
+            console.log('📊 Available usage fields:', Object.keys(usage));
+            
             return {
                 response: data.candidates[0].content.parts[0].text,
                 usage:{
-                    promptTokens: usage.promptTokenCount || 0,
-                    completionTokens: usage.candidatesTokenCount || 0,
+                    promptTokens: usage.promptTokenCount || usage.inputTokenCount || 0,
+                    completionTokens: usage.candidatesTokenCount || usage.outputTokenCount || 0,
                     totalTokens: usage.totalTokenCount || 0
                 }
             };
