@@ -31,20 +31,21 @@ class ChatController {
                 });
             }
 
-            // Save user message
+            // Get AI response first to get token counts
+            const result = await geminiService.chat(message, options);
+
+            // Save user message with input token count
             await db.messages.insert({
                 conversation_id: conversation.id,
                 role: 'user',
                 content: message,
-                provider: null
+                provider: null,
+                tokens_used: result.usage?.promptTokens || null
             });
 
-            // Get AI response
-            const result = await geminiService.chat(message, options);
-
-            // Save AI response
-            const tokenCount = result.usage?.totalTokens || null;
-            console.log('💾 Saving to DB - Token count:', tokenCount);
+            // Save AI response with completion token count
+            const completionTokens = result.usage?.completionTokens || null;
+            console.log('💾 Saving AI response - Completion tokens:', completionTokens);
             console.log('💾 Full result.usage:', JSON.stringify(result.usage));
             
             await db.messages.insert({
@@ -52,7 +53,7 @@ class ChatController {
                 role: 'assistant',
                 content: result.response,
                 provider: 'gemini',
-                tokens_used: tokenCount
+                tokens_used: completionTokens
             });
             
             console.log('✅ Message saved to database');
