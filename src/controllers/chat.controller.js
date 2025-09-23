@@ -87,20 +87,32 @@ class ChatController {
         });
     }
 
-    // Get user's conversations
+    // Get user's conversations with enhanced sidebar data
     async getConversations(req, res, db) {
         try {
             const userId = req.user.userId;
             const { page = 1, limit = 20 } = req.query;
+            const offset = (parseInt(page) - 1) * parseInt(limit);
             
-            const conversations = await db.conversations.find(
-                { user_id: userId },
-                {
-                    order: [{ field: 'updated_at', direction: 'desc' }],
-                    limit: parseInt(limit),
-                    offset: (parseInt(page) - 1) * parseInt(limit)
-                }
-            );
+            // Enhanced query for sidebar display
+            const query = `
+                SELECT 
+                    c.id as conversation_id,
+                    c.title,
+                    c.provider,
+                    c.created_at,
+                    c.updated_at,
+                    COUNT(m.id) as message_count,
+                    MAX(m.created_at) as last_message_time
+                FROM conversations c
+                LEFT JOIN messages m ON m.conversation_id = c.id
+                WHERE c.user_id = $1
+                GROUP BY c.id, c.title, c.provider, c.created_at, c.updated_at
+                ORDER BY COALESCE(MAX(m.created_at), c.created_at) DESC
+                LIMIT $2 OFFSET $3
+            `;
+            
+            const conversations = await db.query(query, [userId, parseInt(limit), offset]);
 
             res.json({
                 success: true,
@@ -111,6 +123,7 @@ class ChatController {
                 }
             });
         } catch (error) {
+            console.error('Get conversations error:', error);
             res.status(500).json({
                 success: false,
                 error: error.message
